@@ -1,4 +1,3 @@
-
 # Psychrometric Relationships
 
 The purpose of this document is to establish a consistent and reliable set of reference equations for psychrometric data validation.
@@ -67,25 +66,25 @@ fs = 1.0044           # Molecular interaction coeff used by Gatley
 
 ## Core Psychrometric Equations
 
-### Absolute Humidity Ratio, $w_a$, $\text{kg/kg}$
+### Absolute Humidity Ratio $w_a$ $\text{kg/kg}$
 $$w_a = \frac{M_{wa} \cdot f \cdot p_v}{p_a - f \cdot p_v}$$
 
-### Relative Humidity, $rh$, $\text{fraction}$
+### Relative Humidity $rh$ $\text{fraction}$
 $$rh = \frac{p_v}{p_s}$$
 
-### Specific Enthalpy, $h_a$, $\text{kJ/kg}$
+### Specific Enthalpy $h_a$ $\text{kJ/kg}$
 $$h_a = CP_a \cdot db + w_a \cdot (H_{fgo} + CP_v \cdot db)$$
 
 ### Adiabatic Saturation (Introducing Wet Bulb)
 Let $w_{sw} = w_{\text{sat}}(wb)$:
 
-* **Above Freezing ($wb \ge \text{TRIPLE}$):**
+* **Above Freezing $wb \ge \text{TRIPLE}$:**
   $$w_a = \frac{w_{sw} \cdot \left(H_{fgo} - wb \cdot (CP_w - CP_v)\right) - CP_a \cdot (db - wb)}{H_{fgo} + CP_v \cdot db - CP_w \cdot wb}$$
 
 * **Below Freezing ($wb < \text{TRIPLE}$):**
   $$w_a = \frac{w_{sw} \cdot \left(H_{sgo} - wb \cdot (CP_i - CP_v)\right) - CP_a \cdot (db - wb)}{H_{sgo} + CP_v \cdot db - CP_i \cdot wb}$$
 
-### Wet Bulb Temperature, $wb$, $^\circ\text{C}$
+### Wet Bulb Temperature $wb$ $^\circ\text{C}$
 Calculated as the inverse of Adiabatic Saturation using a root finder. Given $p_a$, $db$, and $w_a$, let $wb_0$ be an initial guess of $wb$:
 
 ```python
@@ -94,7 +93,7 @@ fsolve(lambda x: wa - wa_from_dbwb(pa, db, x), wb0)
 
 ---
 
-## Saturation Pressure ($p_s = f(t)$)
+## Saturation Pressure $p_s = f(t)$
 
 ### 1. Magnus Equation
 *(Simple and fast, but less accurate. Listed in Wikipedia as the Tetens equation; also known as the August–Roche–Magnus formula, where $t$ is in $^\circ\text{C}$ and $p$ is in $\text{kPa}$.)*
@@ -202,25 +201,25 @@ p = 0.611657 * exp(ln_pi)
 
 ## Additional Derived Properties
 
-* **Dew Point Temperature ($t_d$ [$^\circ\text{C}$]):**  
+* **Dew Point Temperature $t_d$ $^\circ\text{C}$:**  
   Inverse of $p_s = p_{\text{sat}}(t)$. Calculate using a root finder or correlation with the Magnus equation as a starting guess.
 
-* **Specific Volume ($v_a$ [$\text{m}^3/\text{kg}$]):**  
+* **Specific Volume $v_a$ $\text{m}^3/\text{kg}$:**  
   $$v_a = \frac{R_a \cdot (db + K_0) \cdot \left(1.0 + \frac{w_a}{M_{wa}}\right)}{p_a}$$
 
-* **Moist Air Density ($\rho$ [$\text{kg/m}^3$]):**  
+* **Moist Air Density $\rho$ $\text{kg/m}^3$:**  
   $$\rho = \frac{1.0 + w_a}{v_a}$$
 
-* **Specific Heat ($c_p$ [$\text{kJ/kg}\cdot\text{K}$]):**  
+* **Specific Heat $c_p$ $\text{kJ/kg}\cdot\text{K}$:**  
   $$c_p = CP_a + w_a \cdot CP_v$$
 
-* **Degree of Saturation ($ds$ [$\text{fraction}$]):**  
+* **Degree of Saturation $ds$ $\text{fraction}$:**  
   $$ds = \frac{w_a}{w_s}$$
 
-* **Sigma Heat ($z_a$ [$\text{kJ/kg}$]):**  
+* **Sigma Heat $z_a$ $\text{kJ/kg}$:**  
   $$z_a = h_a - w_a \cdot CP_w \cdot wb$$
 
-* **Specific Entropy ($s_a$ [$\text{kJ/kg}\cdot\text{K}$]):**  
+* **Specific Entropy $s_a$ $\text{kJ/kg}\cdot\text{K}$:**  
   * *Dry air:*
     $$s_d = CP_a \cdot \ln\left(\frac{T}{K_0}\right) - R_a \cdot \ln\left(\frac{p_a - p_v}{P_0}\right)$$
   * *Moist air:*
