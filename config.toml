@@ -1,0 +1,159 @@
+[pa]
+label = "Barometric Pressure"
+name = "Barom"
+value = 101.325
+minval = 78
+maxval = 119
+ndigs = 3
+sf = 1.0
+units = "kPa"
+
+[db]
+label = "Dry Bulb Temperature"
+name = "DryBulb"
+value = 23.0
+minval = -60
+maxval = 90
+ndigs = 3
+sf = 1.0
+units = "°C"
+
+[wb]
+label = "Wet Bulb Temperature"
+name = "WetBulb"
+value = 16.0
+minval = -60
+maxval = 90
+ndigs = 3
+sf = 1.0
+units = "°C"
+
+[ha]
+label = "Specific Enthalpy"
+name = "Enthalpy"
+value = 44.786
+minval = -60
+maxval = 355
+ndigs = 3
+sf = 1.0
+units = "kJ/kg"
+
+[wa]
+label = "Absolute Humidity"
+name = "Humidity"
+value = 8.514
+minval = 0.0
+maxval = 100
+ndigs = 3
+sf = 1.0
+units = "g/kg"
+
+[rh]
+label = "Relative Humidity"
+name = "RelHumid"
+value = 48.47
+minval = 0.0
+maxval = 100.0
+ndigs = 3
+sf = 1.0
+units = "%"
+
+[td]
+label = "Dew Point Temperature"
+name = "DewPoint"
+value = 11.558
+minval = -60
+maxval = 90
+ndigs = 3
+sf = 1.0
+units = "°C"
+
+[pv]
+label = "Vapor Pressure"
+name = "VapPress"
+value = 1.36228
+minval = 0.001
+maxval = 12.4
+ndigs = 3
+sf = 1.0
+units = "kPa"
+
+[ps]
+label = "Saturation Pressure"
+name = "SatPress"
+value = 2.81
+minval = 0.001
+maxval = 12.4
+ndigs = 3
+sf = 1.0
+units = "kPa"
+
+[va]
+label = "Specific Volume"
+name = "SpecVol"
+value = 0.85048
+minval = 0.514
+maxval = 1.41
+ndigs = 4
+sf = 1.0
+units = "m³/kg"
+
+[ro]
+label = "True Moist Air Density"
+name = "Density"
+value = 1.1858147
+minval = 0.792
+maxval = 1.95
+ndigs = 4
+sf = 1.0
+units = "kg/m³"
+
+[cp]
+label = "Specific Heat"
+name = "SpecHeat"
+value = 1.02149
+minval = 0.5
+maxval = 5.0
+ndigs = 4
+sf = 1.0
+units = "kJ/kg-K"
+
+[za]
+label = "Sigma Heat"
+name = "SigHeat"
+value = 44.21585
+minval = -60
+maxval = 330
+ndigs = 3
+sf = 1.0
+units = "kJ/kg"
+
+[ws]
+label = "Saturated Abs Humidity"
+name = "SatHumidity"
+value = 17.8242
+minval = 0
+maxval = 117
+ndigs = 3
+sf = 1.0
+units = "g/kg"
+
+[ds]
+label = "Degree of Saturation"
+name = "DegSat"
+value = 0.4776678
+minval = 0.0
+maxval = 1.0
+ndigs = 3
+sf = 1.0
+units = "-"
+
+[sa]
+label = "Specific Entropy"
+name = "Entropy"
+value = 0.1601728
+minval = -0.3
+maxval = 1.25
+ndigs = 3
+sf = 1.0
+units = "kJ/kg-K"
