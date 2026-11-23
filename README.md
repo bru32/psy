@@ -67,13 +67,13 @@ fs = 1.0044           # Molecular interaction coeff used by Gatley
 
 ## Core Psychrometric Equations
 
-### Absolute Humidity Ratio, $w_a$, [$\text{kg/kg}$]
+### Absolute Humidity Ratio, $w_a$, $\text{kg/kg}$
 $$w_a = \frac{M_{wa} \cdot f \cdot p_v}{p_a - f \cdot p_v}$$
 
-### Relative Humidity $rh$ $\text{fraction}$
+### Relative Humidity, $rh$, $\text{fraction}$
 $$rh = \frac{p_v}{p_s}$$
 
-### Specific Enthalpy ($h_a$ [$\text{kJ/kg}$])
+### Specific Enthalpy, $h_a$, $\text{kJ/kg}$
 $$h_a = CP_a \cdot db + w_a \cdot (H_{fgo} + CP_v \cdot db)$$
 
 ### Adiabatic Saturation (Introducing Wet Bulb)
@@ -85,7 +85,7 @@ Let $w_{sw} = w_{\text{sat}}(wb)$:
 * **Below Freezing ($wb < \text{TRIPLE}$):**
   $$w_a = \frac{w_{sw} \cdot \left(H_{sgo} - wb \cdot (CP_i - CP_v)\right) - CP_a \cdot (db - wb)}{H_{sgo} + CP_v \cdot db - CP_i \cdot wb}$$
 
-### Wet Bulb Temperature ($wb$ [$^\circ\text{C}$])
+### Wet Bulb Temperature, $wb$, $^\circ\text{C}$
 Calculated as the inverse of Adiabatic Saturation using a root finder. Given $p_a$, $db$, and $w_a$, let $wb_0$ be an initial guess of $wb$:
 
 ```python
