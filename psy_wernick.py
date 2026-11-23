@@ -40,6 +40,7 @@
 #
 # Author: Bruce Wernick
 # 18 November 2026
+# Copyright © (2026) Bruce Wernick,  All rights reserved...
 # ---------------------------------------------------------
 
 import sys
