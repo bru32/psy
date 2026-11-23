@@ -67,7 +67,7 @@ fs = 1.0044           # Molecular interaction coeff used by Gatley
 
 ## Core Psychrometric Equations
 
-### Absolute Humidity Ratio ($w_a$ [$\text{kg/kg}$])
+### Absolute Humidity Ratio ($w_a$ [kg/kg])
 $$w_a = \frac{M_{wa} \cdot f \cdot p_v}{p_a - f \cdot p_v}$$
 
 ### Relative Humidity ($rh$ [$\text{fraction}$])
