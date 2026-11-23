@@ -5,6 +5,8 @@ The purpose of this document is to establish a consistent and reliable set of re
 **Author:** Bruce Wernick  
 **Date:** 20 November 2026  
 
+Copyright © (2026) Bruce Wernick,  All rights reserved...
+
 ---
 
 ## Properties
