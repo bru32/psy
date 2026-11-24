@@ -1,3 +1,21 @@
+# tests and examples for using psy_wernick
+#
+# Some of the tests are meant to test the limits
+#   test1: Try all calcstate combinations -
+#          Meant to show that invalid combinations
+#          are recognized.
+#   test3: Calculate moist air states across the full 
+#          psychrometric chart range -
+#          calculate ALL air states 
+#          from -60 to 90 degC and 0 to 100 % saturation
+# Other tests show validity of functions
+# and some are just to demonstrate usage.
+#
+# Author: Bruce Wernick
+# 24 November 2026
+#
+# Copyright © (2026) Bruce Wernick,  All rights reserved...
+# ---------------------------------------------------------
 
 from psy_wernick import *
 

@@ -1,3 +1,9 @@
+# Plot a psychrometric chart with psy_wernick
+# Author: Bruce Wernick
+# 24 November 2026
+#
+# Copyright © (2026) Bruce Wernick,  All rights reserved...
+# ---------------------------------------------------------
 
 from psy_wernick import *
 

@@ -39,14 +39,15 @@
 #     Therefore mix falls exactly on line between end points.
 #
 # Author: Bruce Wernick
-# 18 November 2026
+# 24 November 2026
+# Version: 0.0.0.1
+#
 # Copyright © (2026) Bruce Wernick,  All rights reserved...
 # ---------------------------------------------------------
 
 import sys
 import math
-from brent import brent
-from newton2 import newton2 as fsolve
+from nu_meth import brent, broyden_nd as fsolve
 from dataclasses import dataclass, astuple, asdict
 from typing import ClassVar, NamedTuple
 
@@ -142,7 +143,8 @@ def tsat(p):
     return TMAX
 
   lnp = math.log(p)
-  return brent(lambda t: ln_psat(t) - lnp, (TMIN, TMAX))
+  t, its, ok = brent(lambda t: ln_psat(t) - lnp, TMIN, TMAX)
+  return t
 
 def wsat(pa, t):
   """ Saturation humidity ratio [kg_w/kg_da] 
@@ -211,21 +213,24 @@ def wb_from_dbwa(pa, db, wa):
   # 4. Split search domain at triple point
   if t_upper_limit <= TRIPLE:
     f = lambda t: wa_from_dbwb(pa, db, t, over_ice=True) - wa
-    return brent(f, (TMIN, t_upper_limit))
+    wb, its, ok = brent(f, TMIN, t_upper_limit)
+    return wb
 
   w_triple_liq = wa_from_dbwb(pa, db, TRIPLE, over_ice=False)
   if wa >= w_triple_liq:
     if abs(t_upper_limit - TRIPLE) < 1e-9:
       return TRIPLE
     f = lambda t: wa_from_dbwb(pa, db, t, over_ice=False) - wa
-    return brent(f, (TRIPLE, t_upper_limit))
+    wb, its, ok = brent(f, TRIPLE, t_upper_limit)
+    return wb
 
   w_triple_ice = wa_from_dbwb(pa, db, TRIPLE, over_ice=True)
   if wa >= w_triple_ice:
     return TRIPLE
 
   f = lambda t: wa_from_dbwb(pa, db, t, over_ice=True) - wa
-  return brent(f, (TMIN, TRIPLE))
+  wb, its, ok = brent(f, TMIN, TRIPLE)
+  return wb
 
 # ---------------------------------------------------------
 
@@ -487,7 +492,8 @@ def db_from_ws(pa, ws, db0=20):
       top point of the sat curve.
   """
   pv = pv_from_wa(pa, ws)
-  return brent(lambda x: psat(x)-pv, (-100.0, 200.0))
+  db, its, ok = brent(lambda x: psat(x)-pv, -100.0, 200.0)
+  return db
 
 # =========================================================
 # TAir Dataclass
@@ -668,14 +674,14 @@ def calcstate(pa=101.325, db0=23.0, wb0=16.0, **targets):
 
   def residual(x):
     st = astate(pa, x[0], x[1])
-    return st[k0] - v0, st[k1] - v1
+    return (st[k0] - v0) / scale_map[k0], (st[k1] - v1) / scale_map[k1]
 
-  db, wb = fsolve(residual, guess=(db_guess, wb_guess),
-    bounds=((TMIN + 1e-3, TMAX - 1e-3), (0.0, None)),
-    scales=(scale_map[k0], scale_map[k1]))
+  # db, wb = fsolve(residual, guess=(db_guess, wb_guess),
+  #   bounds=((TMIN + 1e-3, TMAX - 1e-3), (0.0, None)),
+  #   scales=(scale_map[k0], scale_map[k1]))
+  (db, wb), it_c, ok_c = fsolve(residual, (db_guess, wb_guess))
 
   air = astate(pa, db, wb)
-  air.update(targets) # Preserve exact user-supplied inputs
   return air
 
 def frange(start: float, stop: float, step: float):
@@ -919,7 +925,7 @@ def plotchart(**kwargs):
           # Interpolate exact db where this RH curve exits 
           # the top border (wa1)
           if db > db0:
-            db_top = brent(lambda t: wa_from_dbrh(pa, t, rh) - wa1, (db - db_step, db))
+            db_top, its, ok = brent(lambda t: wa_from_dbrh(pa, t, rh) - wa1, db - db_step, db)
             points.extend(toScreen(db_top, wa1))
           break
         db += db_step
@@ -973,7 +979,7 @@ def plotchart(**kwargs):
         t_low = db0
         t_high = min(db1, db_from_ws(pa, wa1))
         if ha_from_dbwa(t_low, wsat(pa, t_low)) <= ha <= ha_from_dbwa(t_high, wsat(pa, t_high)):
-          db_end = brent(lambda t: ha_from_dbwa(t, wsat(pa, t)) - ha, (t_low, t_high))
+          db_end, its, ok = brent(lambda t: ha_from_dbwa(t, wsat(pa, t)) - ha, t_low, t_high)
           wa_end = wsat(pa, db_end)
         else:
           continue
@@ -1021,7 +1027,7 @@ def plotchart(**kwargs):
         if t_low < t_high:
           f_sat = lambda t: wa_from_dbva(pa, t, va) - wsat(pa, t)
           if f_sat(t_low) * f_sat(t_high) <= 0:
-            db_end = brent(f_sat, (t_low, t_high))
+            db_end, its, ok = brent(f_sat, t_low, t_high)
             wa_end = wsat(pa, db_end)
           else:
             continue
@@ -1066,7 +1072,7 @@ def plotchart(**kwargs):
 
     for za in frange(za_start, za_end, za_step):
       # 1. Solve for the corresponding wet-bulb temperature on the saturation curve
-      wb = brent(lambda t: za_from_wb(pa, t) - za, (wb_min - 1.0, wb_max + 1.0))
+      wb, its, ok = brent(lambda t: za_from_wb(pa, t) - za, wb_min - 1.0, wb_max + 1.0)
 
       # 2. Upper-left endpoint: saturation curve (db = wb) or left border (db0)
       if wb >= db0:
@@ -1146,9 +1152,3 @@ def plotchart(**kwargs):
   canvas.create_line(points, width=2, fill=colors["sat"], smooth=True)
 
   root.mainloop()
-
-# ---------------------------------------------------------
-
-if __name__ == "__main__":
-
-  plotchart(pa=101.325, db_range=(5, 40), wa_range=(0, 0.030))
