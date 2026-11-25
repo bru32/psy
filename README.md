@@ -2,7 +2,7 @@
 
 A Python reference library and validation benchmark for **psychrometry**, **moist air thermodynamics**, and **HVAC air-conditioning** calculations. 
 
-Based on **ASHRAE** formulations, **Donald Gatley's** *Understanding Psychrometrics*, and **PsychroLib**, this repository provides verified equations for **dry bulb temperature**, **wet bulb temperature**, **dew point**, **relative humidity**, **absolute humidity ratio**, **specific enthalpy**, and **psychrometric charts (psychart)**
+Based on **ASHRAE** formulations and **Donald Gatley's** *Understanding Psychrometrics*, this repository provides verified equations for **dry bulb temperature**, **wet bulb temperature**, **dew point**, **relative humidity**, **absolute humidity ratio**, **specific enthalpy**, and **psychrometric charts (psychart)**
 
 
 **Author:** Bruce Wernick  
