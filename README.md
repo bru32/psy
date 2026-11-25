@@ -1,6 +1,9 @@
-# Psychrometric Relationships
+# Psychrometric Relationships & Moist Air State Calculations (Python)
 
-The purpose of this document is to establish a consistent and reliable set of reference equations for psychrometric data validation.
+A Python reference library and validation benchmark for **psychrometry**, **moist air thermodynamics**, and **HVAC air-conditioning** calculations. 
+
+Based on **ASHRAE** formulations, **Donald Gatley's** *Understanding Psychrometrics*, and **PsychroLib**, this repository provides verified equations for **dry bulb temperature**, **wet bulb temperature**, **dew point**, **relative humidity**, **absolute humidity ratio**, **specific enthalpy**, and **psychrometric charts (psychart)**
+
 
 **Author:** Bruce Wernick  
 **Date:** 20 November 2026  
@@ -269,3 +272,25 @@ za = za_from_wb(wb)           # Sigma heat
 | **Moist Air Density** | `ro` | $\text{kg/m}^3$ | 1.185808 | 1.185843 | 1.18581 |
 | **Specific Heat** | `cp` | $\text{kJ/kg}\cdot\text{K}$ | 1.021496 | 1.021403 | 1.0215 |
 | **Sigma Heat** | `za` | $\text{kJ/kg}$ | 44.215843 | 44.090407 | 44.2158 |
+
+
+## Search Keywords
+  **abs humidity**,
+  **air**,
+  **air-conditioning**,
+  **air-water-mixture**,
+  **ASHRAE**,
+  **dew-point temperature**,
+  **drybulb**,
+  **enthalpy**,
+  **gatley**,
+  **humidity**,
+  **moist air state**,
+  **moisture**,
+  **psychart**,
+  **psychrometry**,
+  **psychrometrics**,
+  **python**,
+  **relative humidity**,
+  **temperature**,
+  **wetbulb**
