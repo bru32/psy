@@ -35,7 +35,7 @@ eps = sys.float_info.epsilon # 2.220446049250313e-16
 # 1D Root Finders 
 # (Bisection, Secant, Newton, Brent)
 
-def bisect(f, a, b, tol=1e-12, maxits=100):
+def bisect(f, a, b, tol=1e-9, maxits=100):
   fa, fb = f(a), f(b)
   if fa * fb > 0:
     raise ValueError("Root not bracketed: f(a) and f(b) must have opposite signs.")
@@ -50,7 +50,7 @@ def bisect(f, a, b, tol=1e-12, maxits=100):
       a, fa = mid, fmid
   return 0.5 * (a + b), maxits, False
 
-def secant(f, x0, x1, tol=1e-12, maxits=100):
+def secant(f, x0, x1, tol=1e-9, maxits=100):
   f0, f1 = f(x0), f(x1)
   for its in range(1, maxits + 1):
     if abs(f1 - f0) < 1e-15:
@@ -61,7 +61,7 @@ def secant(f, x0, x1, tol=1e-12, maxits=100):
     x0, f0, x1, f1 = x1, f1, x2, f(x2)
   return x1, maxits, False
 
-def newton_1d(f, x0, df=None, tol=1e-12, maxits=100):
+def newton_1d(f, x0, df=None, tol=1e-9, maxits=100):
   """
   Finds a root of f(x) = 0 starting from x0 using Newton-Raphson.
   df: derivative function f'(x). Uses central finite differences if None.
@@ -96,7 +96,7 @@ def newton_1d(f, x0, df=None, tol=1e-12, maxits=100):
 
   return x, maxits, False
 
-def brent(f, a, b, tol=1e-12, maxits=100):
+def brent(f, a, b, tol=1e-9, maxits=100):
   """
   Finds a root of f(x) = 0 on [a, b] using Brent's method.
   Requires f(a) and f(b) to have opposite signs.
@@ -231,7 +231,7 @@ def approx_jac(F, x, tiny=1e-8):
       J[i][j] = (fh[i] - f0[i]) / h
   return J
 
-def newton_nd(F, x0, jac=None, tol=1e-10, maxits=50):
+def newton_nd(F, x0, jac=None, tol=1e-6, maxits=50):
   x = list(x0)
   for its in range(1, maxits + 1):
     fx = F(x)
@@ -247,7 +247,7 @@ def newton_nd(F, x0, jac=None, tol=1e-10, maxits=50):
 # Scaled Broyden method ...
 # For psychrometrics and thermodynamic state solvers.
 
-def broyden_nd(F, x0, tol=1e-10, maxits=100):
+def broyden_nd(F, x0, tol=1e-6, maxits=100):
   """Damped Good Broyden method 
      with scaled finite differences.
   """
@@ -306,9 +306,26 @@ def broyden_nd(F, x0, tol=1e-10, maxits=100):
 
 # ---------------------------------------------------------
 
+# --- NUMERICAL INTEGRATION ---
+
+def simpsons_rule(f, a, b, n=100):
+  """Approximates the definite integral of f(x) 
+     from a to b using Simpson's 1/3 rule.
+  """
+  if n % 2 != 0:
+    raise ValueError("n must be an even integer.")
+  h = (b - a) / n
+  total = f(a) + f(b)
+  for i in range(1, n):
+    weight = 4 if i % 2 != 0 else 2
+    total += weight * f(a + i * h)
+  return (h / 3.0) * total
+
+# ---------------------------------------------------------
+
 # 1D Bounded Minimization (Brent's Method)
 
-def brent_min(f, a, b, tol=1e-8, maxits=100):
+def brent_min(f, a, b, tol=1e-6, maxits=100):
   """Finds a local minimum of f(x) on the interval [a, b] 
      using Brent's method
      (Golden Section Search + Parabolic Interpolation).
@@ -435,7 +452,7 @@ def poly_eval_deriv_asc(coeffs, x):
 
 # Polynomial Roots (Aberth-Ehrlich Method)
 
-def poly_roots(coeffs, tol=1e-12, max_iter=200):
+def poly_roots(coeffs, tol=1e-6, max_iter=100):
   """Finds all roots of 
      P(x) = coeffs[0]*x^n + ... + coeffs[n]
      using theAberth-Ehrlich method.
@@ -700,10 +717,9 @@ def linear_fit(xs, ys):
 
   return model, (m, b), r_squared
 
-
 # ---------------------------------------------------------
 
-def svd_thin(A, tol=1e-12, max_sweeps=100):
+def svd_thin(A, tol=1e-9, max_sweeps=100):
   """Computes Thin SVD (A = U * diag(S) * Vt) 
      for an m x n matrix (m >= n)
      using One-Sided Jacobi rotations.
@@ -818,6 +834,68 @@ def svd_multiple_regression(X, y, rcond=1e-12):
 
 # ---------------------------------------------------------
 
+# 2D Heat Conduction
+
+def solve_2d_heat(nx, ny, dx, dy, k=1.0, q_gen=0.0, tol=1e-6, max_iter=10000):
+  """
+  Solve 2D steady-state heat conduction on a rectangular grid.
+  
+  Parameters:
+    nx, ny   : Number of grid nodes in x and y directions
+    dx, dy   : Grid spacing in x and y (m)
+    k        : Thermal conductivity (W/m·K)
+    q_gen    : Volumetric heat generation (W/m^3)
+    tol      : Convergence tolerance (°C)
+    max_iter : Maximum iterations
+  """
+  # Initialize temperature grid (0 °C everywhere)
+  T = [[0.0 for _ in range(nx)] for _ in range(ny)]
+
+  # --- 1. Set Fixed Boundary Conditions (Dirichlet) ---
+  for i in range(nx):
+    T[0][i] = 20.0       # Bottom edge (y = 0)
+    T[ny - 1][i] = 100.0 # Top edge (y = L_y)
+
+  for j in range(ny):
+    T[j][0] = 50.0       # Left edge (x = 0)
+    T[j][nx - 1] = 50.0  # Right edge (x = L_x)
+
+  # Precompute finite-difference coefficients
+  dx2 = dx * dx
+  dy2 = dy * dy
+  denom = 2.0 * (dx2 + dy2)
+  source = (q_gen / k) * dx2 * dy2
+  omega = 1.5  # Relaxation factor (1.0 = Gauss-Seidel, 1.5-1.8 = faster SOR)
+
+  # --- 2. Iterative Solver Loop ---
+  for iteration in range(1, max_iter + 1):
+    max_err = 0.0
+
+    for j in range(1, ny - 1):
+      for i in range(1, nx - 1):
+        T_old = T[j][i]
+        
+        # 5-point stencil average + heat generation term
+        T_new = (
+          dy2 * (T[j][i + 1] + T[j][i - 1])
+          + dx2 * (T[j + 1][i] + T[j - 1][i])
+          + source
+        ) / denom
+
+        # Apply over-relaxation
+        T[j][i] = T_old + omega * (T_new - T_old)
+
+        err = abs(T[j][i] - T_old)
+        if err > max_err:
+          max_err = err
+
+    if max_err < tol:
+      return T, iteration, True
+
+  return T, max_iter, False
+
+# ---------------------------------------------------------
+
 # ODE Integration: Fixed-Step RK4 
 # & Adaptive RK45 (Dormand-Prince)
 
@@ -858,7 +936,7 @@ def rk4(f, t_span, y0, steps=100):
 
   return ts, ys
 
-def rk45(f, t_span, y0, rtol=1e-6, atol=1e-9, max_steps=10000):
+def rk45(f, t_span, y0, rtol=1e-6, atol=1e-7, max_steps=10000):
   """Solves dy/dt = f(t, y) on [t0, tf] 
      using adaptive Dormand-Prince RK45.
      y0 can be a float (scalar ODE) 
@@ -986,32 +1064,36 @@ def colebrook(Re, k, D):
 
 if __name__ == "__main__":
 
+  print(f"{'-'*40}\nExamples\n{'-'*40}\n")
+
   #g = lambda x: poly_eval_asc([400, 4, 0.4, 0.04], x)
   g = lambda x: poly_eval([0.04, 0.4, 4, 400], x)
   xs = [1,2,3,4,5]
   ys = [g(x) for x in xs]
   f = lagrange_interp(xs, ys)
   x = 2.5
+  print("Lagrange interpolation.")
   print(f(x), g(x))
+  print()
 
   f, (m, b), r2  = linear_fit(xs, ys)
+  print("Linear fits")
   print(f"R² = {r2:0.4f}")
   for x in xs:
     print(f"{x:2d}, {g(x):6.2f}, {f(x):6.2f}")
-
+  print()
 
   # Data where x2 is nearly 2 * x1 (severe multicollinearity)
-  X = [
-      [1.0, 2.01],
-      [2.0, 3.99],
-      [3.0, 6.02],
-      [4.0, 7.98],
-      [5.0, 10.01],
-  ]
+  X = [[1.0, 2.01],
+       [2.0, 3.99],
+       [3.0, 6.02],
+       [4.0, 7.98],
+       [5.0, 10.01]]
   y = [5.1, 8.9, 13.2, 16.8, 21.1]
 
   predict, coeffs, R, R2, S = svd_multiple_regression(X, y)
 
+  print("SVD - Multiple Regression")
   print(f"Intercept & Slopes: {[round(c, 4) for c in coeffs]}")
   print(f"Multiple Correlation R: {R:.6f}, R²: {R2:.6f}")
   print(f"Singular Values: {[round(s, 4) for s in S]}")  # Notice tiny 3rd singular value!
@@ -1024,6 +1106,7 @@ if __name__ == "__main__":
   df = lambda x: 3*x**2 - 2
 
   root, its, ok = brent(f, 1.0, 3.0)
+  print("Roots")
   print(f"Brent: {root:.15f} in {its} iterations")
 
   root, its, ok = secant(f, 1.0, 3.0)
@@ -1057,6 +1140,7 @@ if __name__ == "__main__":
   sol_d, it_d, ok_d = broyden_nd(F, x0)
   exact_x = math.sqrt(2.0 + math.sqrt(3.0))
   exact_y = math.sqrt(2.0 - math.sqrt(3.0))
+  print('2D Root')
   print(f"Exact Solution: ({exact_x:.6f}, {exact_y:.6f})")
   print(f"Newton (Jc): ({sol_a[0]:.6f}, {sol_a[1]:.6f}) its={it_a}")
   print(f"Newton (FD): ({sol_b[0]:.6f}, {sol_b[1]:.6f}) its={it_b}")
@@ -1077,7 +1161,9 @@ if __name__ == "__main__":
     return w_low + w_high
 
   p_opt, w_min, its, ok = brent_min(total_work, p_evap, p_cond)
+  print("Brent Min")
   print(f"Optimal P_int: {p_opt:.4f} kPa (exact geometric mean: {math.sqrt(p_evap*p_cond):.4f}) in {its} its")
+  print()
 
   # Friction factor
   # Example: Water in a 0.1 m commercial steel pipe  
@@ -1085,7 +1171,9 @@ if __name__ == "__main__":
   e = 4.5e-5  # m
   D = 100e-3  # m
   f = colebrook(Re, e, D)
+  print("Friction Factor")
   print(f"D'Arcy friction factor = {f:0.6f}")
+  print()
 
 
   # Parameters (SI units: Watts, Joules/K, W/K)
@@ -1104,6 +1192,17 @@ if __name__ == "__main__":
 
   # Simulate 2 hours (7200 seconds) starting at 30°C
   ts, ys, ok = rk45(room_ode, (0.0, 7200.0), [30.0, 30.0])
-
+  print("Room Cooling")
   print(f"Converged: {ok} in {len(ts) - 1} adaptive steps")
   print(f"After 2 hours -> T_air: {ys[-1][0]:.2f}°C, T_mass: {ys[-1][1]:.2f}°C")
+  print()
+
+  # 2D Heat Conduction
+  nx, ny = 21, 21
+  dx, dy = 0.05, 0.05  # 1m x 1m plate
+
+  T_grid, its, converged = solve_2d_heat(nx, ny, dx, dy)
+  print("2D Heat Conduction")
+  print(f"Converged: {converged} in {its} iterations")
+  print(f"Center temperature: {T_grid[ny // 2][nx // 2]:.3f} °C")
+  print()
